@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { post, get } from '../../http';
 
 
 
@@ -14,7 +15,13 @@ function TodoList() {
     // const [todoText, setTodoText] = useState('')
     const [todos, setTodos] = useState([]);
     const [currentTime, setCurrentTime] = useState(null);
+    const [todosApi, setTodosApi] = useState([]);
   
+    const getDataFromServer = () => {
+        get("http://localhost:3001/data")
+        .then((data) => setTodosApi(data))
+        .then((items) => console.log(items))
+    }
 
     useEffect(() => {
         localStorage.setItem("todos", "")
@@ -29,6 +36,10 @@ function TodoList() {
         }, 1000)
     }, []);
 
+    useEffect(() => {
+        getDataFromServer()
+    }, [])
+
   const handleTodoInputChange = event => {
     event.preventDefault();
     setTodoInputValue(event.target.value)
@@ -42,7 +53,8 @@ function TodoList() {
     // 1. Zamienic Math.random() na uuid.
     const newTodo = {
       id: uuidv4(),
-      title: todoInputValue
+      title: todoInputValue,
+      createdAt: new Date().toString()
     }
 
     const newTodos = todos.concat(newTodo);
@@ -85,7 +97,7 @@ function TodoList() {
         {/* <li>{TODOS[0].title}</li> */}
 
         {todos.map(todo => {
-          return <li onClick={() => handleClickLi(todo.id)} key={todo.id}>{todo.title}</li>
+          return <li onClick={() => handleClickLi(todo.id)} key={todo.id}>{!todo.createdAt ? "" : `${todo.title} - ${todo.createdAt}`}</li>
         })}
       </ul>
       {/* 2. Zrobic obsluge usuwania zadan z listy */}
